@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain Intelektual Islam: Asbabun Nuzul & Asbabul Wurud</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Amiri:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #030712;
+            color: #f3f4f6;
+            overflow-x: hidden;
+            user-select: none;
+        }
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        .font-arabic { font-family: 'Amiri', serif; }
+
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85);
+        }
+        
+        .glass-card {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(56, 189, 248, 0.5);
+            box-shadow: 0 12px 28px -10px rgba(14, 165, 233, 0.4);
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #030712; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
+
+        #puzzleCanvas {
+            border-radius: 14px;
+            box-shadow: 0 12px 36px rgba(0,0,0,0.9), 0 0 25px rgba(14, 165, 233, 0.3);
+            cursor: pointer;
+            touch-action: none;
+        }
+
+        .btn-domain {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            transition: all 0.25s ease;
+        }
+        .btn-domain:hover {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            box-shadow: 0 0 22px rgba(14, 165, 233, 0.6);
+            transform: scale(1.02);
+        }
+
+        .modal-fade {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between relative">
+
+    <canvas id="bgCanvas"></canvas>
+
+    <header class="w-full glass-panel sticky top-0 z-40 border-b border-cyan-900/40 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 via-sky-600 to-blue-800 flex items-center justify-center font-cinzel font-black text-xl text-white shadow-lg">
+                    <i class="fas fa-book-quran text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-base md:text-xl font-cinzel font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-200 to-amber-300">
+                        DOMAIN INTELEKTUAL ISLAM
+                    </h1>
+                    <p class="text-[11px] text-gray-400">Asbabun Nuzul & Asbabul Wurud • Dark Fantasy</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2 md:space-x-3">
+                <div id="userBadge" class="hidden flex items-center space-x-2 bg-slate-900/90 px-3 py-1.5 rounded-full border border-slate-700">
+                    <span id="userAvatarIcon" class="text-cyan-400 text-sm"></span>
+                    <span id="userNameDisplay" class="text-xs md:text-sm font-bold text-gray-200"></span>
+                </div>
+
+                <button onclick="toggleSettingsModal()" title="Pengaturan HUD" class="p-2.5 rounded-full bg-slate-800/90 hover:bg-slate-700 text-cyan-400 border border-slate-700 transition-all hover:rotate-45">
+                    <i class="fas fa-cog text-base"></i>
+                </button>
+
+                <button onclick="showLeaderboard()" title="Papan Peringkat" class="p-2.5 rounded-full bg-slate-800/90 hover:bg-slate-700 text-amber-400 border border-slate-700 transition-all hover:scale-105">
+                    <i class="fas fa-trophy text-base"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col items-center justify-center relative z-10">
+
+        <section id="registrationSection" class="w-full max-w-md my-auto my-6">
+            <div class="glass-panel p-6 md:p-8 rounded-2xl border border-cyan-500/40 text-center relative overflow-hidden">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-tr from-cyan-600 via-slate-900 to-amber-500 p-0.5 shadow-xl">
+                    <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
+                        <i class="fas fa-kaaba text-2xl text-cyan-400"></i>
+                    </div>
+                </div>
+
+                <h2 class="text-2xl font-cinzel font-bold text-white mb-1">Registrasi Intelektual</h2>
+                <p class="text-xs text-gray-400 mb-6">Aktifkan Energi Domain & Mulai Pembelajaran Historia</p>
+
+                <form id="regForm" onsubmit="handleRegistration(event)" class="space-y-4 text-left">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Nama Intelektual</label>
+                        <input type="text" id="playerNameInput" required 
+                            placeholder="(contoh: Samudra / Naraa)" 
+                            class="w-full bg-slate-900/90 border border-slate-700 focus:border-cyan-400 rounded-xl px-4 py-3 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Gelar & Busana Domain</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="gender" value="Ikhwan" checked class="peer hidden">
+                                <div class="p-3.5 rounded-xl border border-slate-700 bg-slate-900/60 peer-checked:border-cyan-400 peer-checked:bg-cyan-950/40 text-center transition-all">
+                                    <i class="fas fa-user-shield text-cyan-400 text-xl mb-1 block"></i>
+                                    <span class="text-xs font-bold text-gray-200">Intelektual Ikhwan</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="gender" value="Akhwat" class="peer hidden">
+                                <div class="p-3.5 rounded-xl border border-slate-700 bg-slate-900/60 peer-checked:border-rose-400 peer-checked:bg-rose-950/40 text-center transition-all">
+                                    <i class="fas fa-user-nurse text-rose-400 text-xl mb-1 block"></i>
+                                    <span class="text-xs font-bold text-gray-200">Intelektual Akhwat Syar'i</span>
+                                </div>
+                            </label>
+                        </div>
+                        <p class="text-[10px] text-gray-400 mt-2 italic">*Karakter wanita & Intelektual Akhwat mengenakan Hijab Syar'i & Abaya Longgar.</p>
+                    </div>
+
+                    <button type="submit" class="w-full py-3.5 mt-2 rounded-xl btn-domain text-white font-cinzel font-bold text-sm tracking-wider shadow-lg flex items-center justify-center space-x-2">
+                        <span>📜 MASUK KE DOMAIN INTELEKTUAL</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <section id="levelSelectSection" class="w-full hidden space-y-6">
+            <div class="text-center max-w-2xl mx-auto space-y-2">
+                <span class="px-3.5 py-1 rounded-full text-xs font-bold tracking-widest bg-cyan-950 text-cyan-400 border border-cyan-800">
+                    PILIH MATERI KAJIAN
+                </span>
+                <h2 class="text-2xl md:text-3xl font-cinzel font-bold text-white">Tingkatan Domain Asbabun Nuzul & Wurud</h2>
+                <p class="text-xs md:text-sm text-gray-400">Pahami konteks sejarah penuturan Al-Qur'an dan Asbab lahirnya Hadis Nabi.</p>
+            </div>
+
+            <div id="levelsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Dynamically populated via JS -->
+            </div>
+        </section>
+
+        <section id="gameplaySection" class="w-full hidden flex flex-col lg:flex-row items-center lg:items-start justify-center gap-6">
+            <div class="flex flex-col items-center space-y-4">
+                <div class="w-full max-w-[420px] flex items-center justify-between glass-panel px-4 py-2.5 rounded-xl border border-slate-800">
+                    <button onclick="backToLevelSelect()" class="text-xs font-semibold text-gray-400 hover:text-cyan-400 flex items-center space-x-1">
+                        <i class="fas fa-arrow-left"></i> <span>Peta Level</span>
+                    </button>
+                    <div class="flex items-center space-x-4 text-xs font-mono">
+                        <span class="text-amber-400"><i class="fas fa-shoe-prints mr-1"></i><span id="moveCounter">0</span> Langkah</span>
+                        <span class="text-cyan-400"><i class="fas fa-clock mr-1"></i><span id="timerDisplay">00:00</span></span>
+                    </div>
+                    <button onclick="resetCurrentPuzzle()" title="Acak Ulang" class="text-xs text-gray-400 hover:text-rose-400">
+                        <i class="fas fa-redo-alt"></i>
+                    </button>
+                </div>
+
+                <!-- Preview Guide Button -->
+                <button onclick="openImagePreviewModal()" class="w-full max-w-[420px] py-2 px-4 bg-slate-800/90 hover:bg-slate-700 text-cyan-300 rounded-xl border border-cyan-500/30 text-xs font-bold flex items-center justify-center space-x-2 transition-all">
+                    <i class="fas fa-eye text-cyan-400"></i>
+                    <span>PRATINJAU GAMBAR (PREVIEW GUIDE)</span>
+                </button>
+
+                <!-- Canvas Wrapper -->
+                <div class="relative">
+                    <canvas id="puzzleCanvas" width="420" height="420" class="max-w-full h-auto"></canvas>
+                    <div id="puzzleOverlay" class="absolute inset-0 bg-slate-950/80 rounded-xl flex items-center justify-center hidden">
+                        <span class="text-cyan-400 font-cinzel font-bold animate-pulse">Memuat Kepingan Arsitektur Islam...</span>
+                    </div>
+                </div>
+
+                <p class="text-xs text-gray-400 text-center">Klik 2 kepingan puzzle untuk menukarnya hingga tersusun rapi.</p>
+            </div>
+
+            <!-- Historical & Wisdom Card -->
+            <div class="w-full max-w-[420px] lg:max-w-md glass-panel p-5 md:p-6 rounded-2xl border border-slate-800 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div>
+                        <span id="levelBadge" class="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded bg-slate-800 text-cyan-400">Level 1</span>
+                        <h3 id="levelTitle" class="text-lg font-cinzel font-bold text-white mt-1">Surah Al-Ikhlas</h3>
+                    </div>
+                    <div id="mentorAvatarBox" class="w-14 h-14 rounded-xl bg-slate-900 border border-slate-700 overflow-hidden flex items-center justify-center">
+                        <canvas id="mentorCanvasMini" width="56" height="56"></canvas>
+                    </div>
+                </div>
+
+                <div class="space-y-3 text-xs md:text-sm text-gray-300 leading-relaxed">
+                    <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800">
+                        <h4 class="font-bold text-amber-400 mb-1 flex items-center">
+                            <i class="fas fa-scroll mr-2"></i> Pokok Bahasan & Teks Arab
+                        </h4>
+                        <p id="levelArabicText" class="text-right font-arabic text-amber-300 text-base mb-1"></p>
+                        <p id="levelSummary" class="text-gray-300">Penjelasan singkat...</p>
+                    </div>
+
+                    <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 space-y-1.5">
+                        <h4 class="font-bold text-cyan-400 flex items-center">
+                            <i class="fas fa-history mr-2"></i> Konteks Asbabun Nuzul / Wurud
+                        </h4>
+                        <p id="levelHistory" class="text-gray-300 leading-normal">Sejarah latar belakang turunnya ayat atau sabda Nabi...</p>
+                    </div>
+
+                    <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800">
+                        <h4 class="font-bold text-rose-400 mb-1 flex items-center">
+                            <i class="fas fa-gem mr-2"></i> Hikmah Intelektual
+                        </h4>
+                        <p id="levelWisdom" class="text-gray-300 italic">Hikmah mendalam bagi penuntut ilmu...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL 1: VICTORY & MENTOR PRAISE -->
+    <div id="victoryModal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="glass-panel max-w-lg w-full p-6 md:p-8 rounded-2xl border border-cyan-500/40 text-center space-y-5 modal-fade">
+            <div class="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-tr from-cyan-500 to-amber-400 p-0.5 shadow-2xl overflow-hidden">
+                <canvas id="mentorCanvasModal" width="96" height="96" class="w-full h-full object-cover rounded-[14px] bg-slate-900"></canvas>
+            </div>
+
+            <div>
+                <span id="mentorTitle" class="text-xs font-bold text-amber-400 uppercase tracking-widest">Satoru Gojo - Mentor Domain</span>
+                <h3 class="text-xl md:text-2xl font-cinzel font-bold text-white mt-1">Segel Domain Terbuka!</h3>
+            </div>
+
+            <div class="bg-slate-900/90 border border-cyan-500/30 p-4 rounded-xl text-left">
+                <p id="mentorPraiseText" class="text-xs md:text-sm text-cyan-200 leading-relaxed italic">
+                    "Luar biasa..."
+                </p>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 py-2 bg-slate-900/60 rounded-xl border border-slate-800">
+                <div>
+                    <span class="block text-[10px] text-gray-400">Waktu</span>
+                    <span id="modalTime" class="text-sm font-bold font-mono text-cyan-400">00:45</span>
+                </div>
+                <div>
+                    <span class="block text-[10px] text-gray-400">Langkah</span>
+                    <span id="modalMoves" class="text-sm font-bold font-mono text-amber-400">14</span>
+                </div>
+                <div>
+                    <span class="block text-[10px] text-gray-400">Rating</span>
+                    <div id="modalStars" class="text-amber-400 text-xs mt-0.5">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex space-x-3">
+                <button onclick="closeVictoryModal(); backToLevelSelect();" class="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-gray-200 transition-colors">
+                    Peta Level
+                </button>
+                <button id="nextLevelBtn" onclick="closeVictoryModal(); startNextLevel();" class="flex-1 py-3 rounded-xl btn-domain text-xs font-bold text-white shadow-lg">
+                    Level Selanjutnya <i class="fas fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: INTERACTIVE SETTINGS MENU HUD -->
+    <div id="settingsModal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="glass-panel max-w-md w-full p-6 rounded-2xl border border-cyan-500/30 space-y-5 modal-fade">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-sliders-h text-cyan-400 text-lg"></i>
+                    <h3 class="text-lg font-cinzel font-bold text-white">Pengaturan Domain HUD</h3>
+                </div>
+                <button onclick="toggleSettingsModal()" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <div class="flex justify-between text-xs font-semibold mb-2">
+                        <span class="text-gray-300"><i class="fas fa-music mr-2 text-cyan-400"></i>Volume Musik BGM</span>
+                        <span id="bgmVolumeLabel" class="text-cyan-400 font-mono">50%</span>
+                    </div>
+                    <input type="range" id="bgmSlider" min="0" max="100" value="50" oninput="updateAudioSettings()" class="w-full accent-cyan-500 bg-slate-800 h-2 rounded-lg cursor-pointer">
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-xs font-semibold mb-2">
+                        <span class="text-gray-300"><i class="fas fa-volume-up mr-2 text-amber-400"></i>Volume SFX (Efek Suara)</span>
+                        <span id="sfxVolumeLabel" class="text-amber-400 font-mono">80%</span>
+                    </div>
+                    <input type="range" id="sfxSlider" min="0" max="100" value="80" oninput="updateAudioSettings()" class="w-full accent-amber-500 bg-slate-800 h-2 rounded-lg cursor-pointer">
+                </div>
+
+                <div class="flex items-center justify-between py-2 border-t border-b border-slate-800">
+                    <div>
+                        <span class="text-xs font-bold text-gray-200 block"><i class="fas fa-magic mr-2 text-rose-400"></i>Animasi Partikel Fantasy</span>
+                        <span class="text-[10px] text-gray-400">Energi Biru & Bunga Sakura Melayang</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="particleToggle" checked onchange="toggleParticlesSetting()" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-600"></div>
+                    </label>
+                </div>
+            </div>
+
+            <button onclick="toggleSettingsModal()" class="w-full py-2.5 rounded-xl btn-domain text-xs font-bold text-white">
+                Simpan & Tutup
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 3: IMAGE PREVIEW OVERLAY GUIDE -->
+    <div id="imagePreviewModal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="glass-panel max-w-md w-full p-5 rounded-2xl border border-cyan-500/40 text-center space-y-4 modal-fade">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 class="text-sm font-cinzel font-bold text-cyan-300"><i class="fas fa-eye mr-2"></i>Panduan Susunan Gambar Complete</h3>
+                <button onclick="closeImagePreviewModal()" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-base"></i>
+                </button>
+            </div>
+
+            <div class="flex justify-center">
+                <canvas id="targetPreviewCanvas" width="320" height="320" class="rounded-xl border border-cyan-500/30 shadow-xl"></canvas>
+            </div>
+
+            <p class="text-[11px] text-gray-400">Gunakan gambar ini sebagai acuan untuk menyusun kepingan puzzle.</p>
+
+            <button onclick="closeImagePreviewModal()" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-gray-200">
+                Kembali ke Game
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 4: LEADERBOARD -->
+    <div id="leaderboardModal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="glass-panel max-w-lg w-full p-6 rounded-2xl border border-amber-500/30 text-center space-y-4 modal-fade">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-trophy text-amber-400 text-xl"></i>
+                    <h3 class="text-lg font-cinzel font-bold text-white">Papan Peringkat Domain</h3>
+                </div>
+                <button onclick="closeLeaderboard()" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+
+            <div class="max-h-80 overflow-y-auto space-y-2 pr-1" id="leaderboardList">
+                <!-- Dynamically populated -->
+            </div>
+
+            <button onclick="closeLeaderboard()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-gray-200">
+                Tutup
+            </button>
+        </div>
+    </div>
+
+    <footer class="w-full glass-panel border-t border-gray-800/80 py-3 text-center text-xs text-gray-500 relative z-10">
+        <p>© 2026 Domain Intelektual Islam • Asbabun Nuzul & Wurud Dark Fantasy Edition</p>
+    </footer>
+
+    <script>
+        let currentUser = { name: '', gender: 'Ikhwan' };
+        let currentLevelIndex = 0;
+        const puzzleGridSize = 3;
+        let tiles = [];
+        let selectedTileIndex = null;
+        let moveCount = 0;
+        let timerInterval = null;
+        let secondsElapsed = 0;
+        let cachedFullLevelCanvas = null;
+
+        let audioCtx = null;
+        let isAudioPlaying = false;
+        let bgmVolume = 0.5;
+        let sfxVolume = 0.8;
+        let particlesEnabled = true;
+
+        let particlesArr = [];
+        const bgCanvas = document.getElementById('bgCanvas');
+        const bgCtx = bgCanvas.getContext('2d');
+
+        function resizeBgCanvas() {
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeBgCanvas);
+        resizeBgCanvas();
+
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * bgCanvas.width;
+                this.y = Math.random() * bgCanvas.height;
+                this.type = Math.random() > 0.4 ? 'blue' : 'sakura';
+                this.size = this.type === 'blue' ? Math.random() * 3.5 + 1 : Math.random() * 6 + 4;
+                this.speedX = (Math.random() - 0.5) * 1.2;
+                this.speedY = this.type === 'blue' ? -Math.random() * 1.5 - 0.5 : Math.random() * 1.2 + 0.8;
+                this.opacity = Math.random() * 0.7 + 0.3;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotSpeed = (Math.random() - 0.5) * 0.04;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.rotation += this.rotSpeed;
+
+                if (this.y < -10 || this.y > bgCanvas.height + 10 || this.x < -10 || this.x > bgCanvas.width + 10) {
+                    this.reset();
+                    if (this.type === 'blue') this.y = bgCanvas.height + 5;
+                    else this.y = -5;
+                }
+            }
+            draw() {
+                bgCtx.save();
+                bgCtx.translate(this.x, this.y);
+                bgCtx.rotate(this.rotation);
+                bgCtx.globalAlpha = this.opacity;
+
+                if (this.type === 'blue') {
+                    const grad = bgCtx.createRadialGradient(0, 0, 0, 0, 0, this.size * 2);
+                    grad.addColorStop(0, '#38bdf8');
+                    grad.addColorStop(0.5, '#0284c7');
+                    grad.addColorStop(1, 'transparent');
+                    bgCtx.fillStyle = grad;
+                    bgCtx.beginPath();
+                    bgCtx.arc(0, 0, this.size * 2, 0, Math.PI * 2);
+                    bgCtx.fill();
+                } else {
+                    bgCtx.fillStyle = '#f472b6';
+                    bgCtx.beginPath();
+                    bgCtx.moveTo(0, -this.size);
+                    bgCtx.bezierCurveTo(this.size, -this.size/2, this.size, this.size/2, 0, this.size);
+                    bgCtx.bezierCurveTo(-this.size, this.size/2, -this.size, -this.size/2, 0, -this.size);
+                    bgCtx.fill();
+                }
+                bgCtx.restore();
+            }
+        }
+
+        for (let i = 0; i < 70; i++) particlesArr.push(new Particle());
+
+        function animateBgParticles() {
+            bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+            if (particlesEnabled) {
+                particlesArr.forEach(p => { p.update(); p.draw(); });
+            }
+            requestAnimationFrame(animateBgParticles);
+        }
+        animateBgParticles();
+
+        const levelsData = [
+            {
+                id: 1,
+                title: "Surah Al-Ikhlas",
+                type: "Asbabun Nuzul",
+                topic: "Keesaan Allah SWT (Tauhid)",
+                character: "Satoru Gojo",
+                arabicHeader: "قُلْ هُوَ اللَّهُ أَحَدٌ",
+                summary: "Mempertegas keesaan Allah SWT sebagai satu-satunya Rabb tanpa sekutu.",
+                history: "Kaum musyrikin Makkah bertanya kepada Nabi Muhammad SAW: 'Wahai Muhammad, sifatkanlah Rabbmu kepada kami, apakah Ia dari emas atau perak?' Maka Allah menurunkan Surah Al-Ikhlas sebagai ketauhidan mutlak.",
+                wisdom: "Ilmu Tauhid adalah benteng domain intelektual tertinggi seorang Muslim.",
+                mentorPraise: (name) => `Luar biasa Intelektual ${name}! Pemahamanmu tentang Asbabun Nuzul Surah Al-Ikhlas menunjukkan ketajaman tauhid pada domain intelektualmu!`
+            },
+            {
+                id: 2,
+                title: "Hadis Niat",
+                type: "Asbabul Wurud",
+                topic: "Innamal A'malu bin Niyyat",
+                character: "Yuji Itadori",
+                arabicHeader: "إِنَّمَا الْأَعْمَالُ بِالنِّيَّاتِ",
+                summary: "Setiap amalan manusia dinilai secara mutlak berdasarkan niat pendorong dalam hatinya.",
+                history: "Seseorang berhijrah dari Makkah ke Madinah bukan semata karena Allah dan Rasul, melainkan untuk menikahi seorang wanita bernama Ummu Qais. Rasulullah SAW lantas menekankan bahwa amalan bergantung pada niat.",
+                wisdom: "Niat yang tulus memancarkan energi amal yang tak terbatas.",
+                mentorPraise: (name) => `Kerja bagus Intelektual ${name}! Ingatlah bahwa dalam setiap pencarian ilmu, niat yang lurus adalah kunci kekuatan sejati.`
+            },
+            {
+                id: 3,
+                title: "Surah Al-Fil",
+                type: "Asbabun Nuzul",
+                topic: "Perlindungan Ka'bah & Pasukan Gajah",
+                character: "Nobara Kugisaki (Syar'i)",
+                arabicHeader: "أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِأَصْحَابِ الْفِيلِ",
+                summary: "Kisah hancurnya pasukan gajah Abrahah yang hendak meruntuhkan Ka'bah dengan burung Ababil.",
+                history: "Gubernur Yaman (Abrahah) memimpin pasukan gajah menyerang Makkah untuk memindahkan pusat ziarah. Allah menghancurkan pasukan gajah tersebut tepat pada tahun kelahiran Nabi SAW.",
+                wisdom: "Pertolongan Allah selalu hadir menghancurkan kesombongan musuh-musuh agama.",
+                mentorPraise: (name) => `Sungguh tangguh Intelektual ${name}! Keberanian dan ketelitianmu menyusun domain ini mencerminkan keanggunan Syar'i yang tak tergoyahkan!`
+            },
+            {
+                id: 4,
+                title: "Hadis Kebersihan",
+                type: "Asbabul Wurud",
+                topic: "At-Thuhuru Syatrul Iman",
+                character: "Megumi Fushiguro",
+                arabicHeader: "الطُّهُورُ شَطْرُ الْإِيمَانِ",
+                summary: "Penyucian lahiriah dan batiniah merupakan setengah dari kesempurnaan iman.",
+                history: "Para sahabat bertanya mengenai keutamaan wudhu dan kesucian diri saat menghadap Allah SWT. Nabi SAW menyampaikan bahwa bersuci menggugurkan dosa-dosa kecil.",
+                wisdom: "Kebersihan jiwa dan raga adalah syarat utama dalam menerima pancaran ilmu.",
+                mentorPraise: (name) => `Sempurna Intelektual ${name}! Pengetahuanmu yang jernih dan terstruktur berhasil membuka segel domain ini dengan sangat efisien.`
+            },
+            {
+                id: 5,
+                title: "Surah Al-Kautsar",
+                type: "Asbabun Nuzul",
+                topic: "Nikmat Berlimpah & Penolak Hinaan",
+                character: "Kento Nanami",
+                arabicHeader: "إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ",
+                summary: "Pemberian nikmat yang amat banyak (Telaga Al-Kautsar) bagi Nabi SAW.",
+                history: "Ketika putra Nabi SAW wafat, Al-Ashi bin Wail menghina beliau dengan sebutan 'Abtar' (terputus keturunannya). Allah menurunkan surah ini menghibur Nabi SAW dan menegaskan kemuliaan beliau.",
+                wisdom: "Istiqamah dalam tugas dan kejujuran akan selalu membuahkan kemuliaan abadi.",
+                mentorPraise: (name) => `Sangat efisien Intelektual ${name}! Ketenangan analisis intelektualmu menyelesaikan materi ini sungguh membanggakan!`
+            },
+            {
+                id: 6,
+                title: "Hadis Kasih Sayang",
+                type: "Asbabul Wurud",
+                topic: "Man La Yarham La Yurham",
+                character: "Suguru Geto",
+                arabicHeader: "مَنْ لَا يَرْحَمْ لَا يُرْحَمْ",
+                summary: "Barangsiapa tidak menyayangi sesama makhluk, maka ia tidak akan disayangi oleh Allah.",
+                history: "Aqra' bin Habis melihat Nabi Muhammad SAW mencium cucu beliau Al-Hasan dan heran. Nabi SAW bersabda menegaskan bahwa kasih sayang adalah inti ajaran langit.",
+                wisdom: "Kekuatan tanpa kasih sayang dan kelembutan hati hanya akan melahirkan kegelapan.",
+                mentorPraise: (name) => `Luar biasa Intelektual ${name}! Kamu mampu menyelami hikmah kasih sayang ini dengan kedalaman intelek yang sangat tinggi.`
+            },
+            {
+                id: 7,
+                title: "Surah An-Nasr",
+                type: "Asbabun Nuzul",
+                topic: "Kemenangan Islam (Fathu Makkah)",
+                character: "Ryomen Sukuna",
+                arabicHeader: "إِذَا جَاءَ نَصْرُ اللَّهِ وَالْفَتْحُ",
+                summary: "Kemenangan besar Fathu Makkah dan berbondong-bondongnya manusia masuk agama Allah.",
+                history: "Diturunkan menjelang akhir hayat Nabi SAW sebagai tanda telah sempurnanya risalah dakwah dan kabar gembira atas pertolongan Allah.",
+                wisdom: "Puncak dari segala ilmu dan kemenangan adalah kerendahan hati dan istighfar.",
+                mentorPraise: (name) => `Kemenangan Mutlak Intelektual ${name}! Kamu telah menguasai seluruh Domain Asbabun Nuzul & Wurud dengan predikat Intelektual Sejati!`
+            }
+        ];
+
+        function handleRegistration(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('playerNameInput').value.trim();
+            const genderVal = document.querySelector('input[name="gender"]:checked').value;
+
+            if (!nameInput) return;
+
+            currentUser.name = nameInput;
+            currentUser.gender = genderVal;
+
+            document.getElementById('userNameDisplay').innerText = currentUser.name;
+            document.getElementById('userAvatarIcon').className = genderVal === 'Ikhwan' ? 'fas fa-user-shield text-cyan-400' : 'fas fa-user-nurse text-rose-400';
+            document.getElementById('userBadge').classList.remove('hidden');
+
+            initAudioEngine();
+
+            document.getElementById('registrationSection').classList.add('hidden');
+            document.getElementById('levelSelectSection').classList.remove('hidden');
+
+            renderLevelGrid();
+        }
+
+        function renderLevelGrid() {
+            const container = document.getElementById('levelsGrid');
+            container.innerHTML = '';
+            const progress = JSON.parse(localStorage.getItem('jjk_islamic_progress') || '{}');
+
+            levelsData.forEach((lvl, idx) => {
+                const isUnlocked = idx === 0 || progress[idx];
+                const stars = progress[lvl.id]?.stars || 0;
+
+                const card = document.createElement('div');
+                card.className = `glass-card p-5 rounded-2xl border relative overflow-hidden flex flex-col justify-between ${isUnlocked ? 'cursor-pointer border-slate-700' : 'opacity-60 cursor-not-allowed border-slate-800'}`;
+                
+                if (isUnlocked) {
+                    card.onclick = () => startLevel(idx);
+                }
+
+                card.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-cyan-400">
+                                Level ${lvl.id} • ${lvl.type}
+                            </span>
+                            <div class="text-amber-400 text-xs">
+                                ${Array(3).fill(0).map((_, s) => `<i class="${s < stars ? 'fas' : 'far'} fa-star"></i>`).join('')}
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-cinzel font-bold text-white">${lvl.title}</h3>
+                            <p class="text-sm text-amber-300 font-arabic text-right mt-1">${lvl.arabicHeader}</p>
+                            <p class="text-xs text-gray-400 mt-1">${lvl.topic}</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+                        <span class="text-[11px] text-gray-400 flex items-center">
+                            <i class="fas fa-user-ninja mr-1.5 text-cyan-400"></i> Mentor: ${lvl.character}
+                        </span>
+                        <span class="text-xs font-bold ${isUnlocked ? 'text-cyan-400' : 'text-gray-500'}">
+                            ${isUnlocked ? 'Buka Domain <i class="fas fa-arrow-right ml-1"></i>' : '<i class="fas fa-lock"></i> Terkunci'}
+                        </span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function createIslamicArtCanvas(levelIdx, callback) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 600;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+
+            // Dark luxury gradient background
+            const bgGrad = ctx.createRadialGradient(300, 300, 50, 300, 300, 420);
+            bgGrad.addColorStop(0, '#0f172a');
+            bgGrad.addColorStop(0.8, '#020617');
+            bgGrad.addColorStop(1, '#000000');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, 600, 600);
+
+            // Centered Glow Aura Effect
+            const centerGlow = ctx.createRadialGradient(300, 300, 10, 300, 300, 220);
+            centerGlow.addColorStop(0, 'rgba(56, 189, 248, 0.35)');
+            centerGlow.addColorStop(0.6, 'rgba(14, 165, 233, 0.1)');
+            centerGlow.addColorStop(1, 'transparent');
+            ctx.fillStyle = centerGlow;
+            ctx.beginPath(); ctx.arc(300, 300, 220, 0, Math.PI*2); ctx.fill();
+
+            // Geometric Outer Frame
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 6;
+            ctx.strokeRect(30, 30, 540, 540);
+            ctx.strokeStyle = '#eab308';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(42, 42, 516, 516);
+
+            const lvl = levelsData[levelIdx];
+
+            if (levelIdx === 0) { // LEVEL 1: Surah Al-Ikhlas - Gold Calligraphy CENTERED
+                ctx.fillStyle = '#0284c7'; ctx.globalAlpha = 0.25;
+                ctx.beginPath(); ctx.arc(300, 300, 180, Math.PI, 0, false); ctx.fill();
+
+                ctx.strokeStyle = '#fef08a'; ctx.lineWidth = 4;
+                ctx.beginPath(); ctx.arc(300, 300, 190, 0, Math.PI*2); ctx.stroke();
+
+                ctx.globalAlpha = 1.0;
+                ctx.fillStyle = '#fef08a';
+                ctx.font = 'bold 38px Amiri, serif';
+                ctx.textAlign = 'center';
+                ctx.fillText("سُورَةُ الإِخْلَاصِ", 300, 280);
+
+                ctx.fillStyle = '#38bdf8';
+                ctx.font = 'bold 24px Amiri, serif';
+                ctx.fillText("قُلْ هُوَ اللَّهُ أَحَدٌ", 300, 335);
+
+            } else if (levelIdx === 1) { // LEVEL 2: Hadis Niat - Opened Book CENTERED
+                ctx.fillStyle = '#b45309';
+                ctx.beginPath();
+                ctx.moveTo(180, 380); ctx.lineTo(300, 300); ctx.lineTo(420, 380); ctx.lineTo(300, 320); ctx.fill();
+
+                ctx.fillStyle = '#fef3c7';
+                ctx.beginPath(); ctx.ellipse(230, 260, 110, 75, -0.1, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(370, 260, 110, 75, 0.1, 0, Math.PI*2); ctx.fill();
+
+                ctx.fillStyle = '#0284c7';
+                ctx.font = 'bold 26px Amiri, serif';
+                ctx.textAlign = 'center';
+                ctx.fillText("إِنَّمَا الْأَعْمَالُ بِالنِّيَّاتِ", 300, 265);
+
+            } else if (levelIdx === 2) { // LEVEL 3: Surah Al-Fil - Ka'bah Silhouette CENTERED
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(200, 200, 200, 200);
+                ctx.strokeStyle = '#eab308'; ctx.lineWidth = 8;
+                ctx.strokeRect(200, 200, 200, 200);
+                // Gold Ka'bah Belt
+                ctx.fillStyle = '#eab308';
+                ctx.fillRect(200, 240, 200, 30);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 22px Amiri, serif';
+                ctx.textAlign = 'center';
+                ctx.fillText("سُورَةُ الْفِيلِ", 300, 320);
+
+            } else if (levelIdx === 3) { // LEVEL 4: Hadis Kebersihan - Zamzam Flask & Calligraphy
+                ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 4;
+                ctx.beginPath(); ctx.arc(300, 300, 160, 0, Math.PI*2); ctx.stroke();
+
+                ctx.fillStyle = '#38bdf8';
+                ctx.font = 'bold 30px Amiri, serif';
+                ctx.textAlign = 'center';
+                ctx.fillText("الطُّهُورُ شَطْرُ الْإِيمَانِ", 300, 290);
+                ctx.fillStyle = '#fef08a';
+                ctx.font = 'bold 18px Plus Jakarta Sans, sans-serif';
+                ctx.fillText("Hadis Kebersihan & Kesucian", 300, 335);
+
+            } else if (levelIdx === 4) { // LEVEL 5: Surah Al-Kautsar - River of Paradise
+                ctx.fillStyle = '#0ea5e9'; ctx.globalAlpha = 0.3;
+                ctx.beginPath(); ctx.arc(300, 300, 170, 0, Math.PI*2); ctx.fill();
+
+                ctx.globalAlpha = 1.0;
+                ctx.fillStyle = '#fef08a';
+                ctx.font = 'bold 32px Amiri, serif';
+                ctx.textAlign = 'center';
+                ctx.fillText("إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ", 300, 290);
+                ctx.fillStyle = '#38bdf8';
+                ctx.font = 'bold 18px Plus Jakarta Sans, sans-serif';
+                ctx.fillText("Nikmat Telaga Al-Kautsar", 300, 335);
+
+            } else if (levelIdx === 5) { // LEVEL 6: Hadis Kasih Sayang - Emblem of Compassion
+                ctx.strokeStyle = '#f43f5e'; ctx.lineWidth = 4;
+                ctx.save(); ctx.translate(300, 300);
+                for (let i = 0; i < 4; i++) {
+                    ctx.rotate(Math.PI / 2);
+                    ctx.strokeRect(-120, -120, 240, 240);
+                }
+                ctx.restore();
+
+                ctx.fillStyle = '#fef08a';
+                ctx.font = 'bold 28px Amiri, serif';
+                ctx.textAlign = 'center';
+                ctx.fillText("مَنْ لَا يَرْحَمْ لَا يُرْحَمْ", 300, 290);
+                ctx.fillStyle = '#f43f5e';
+                ctx.font = 'bold 18px Plus Jakarta Sans, sans-serif';
+                ctx.fillText("Kasih Sayang Sesama Makhluk", 300, 335);
+
+            } else { // LEVEL 7: Surah An-Nasr - Flag of Victory
+                ctx.fillStyle = '#10b981'; ctx.globalAlpha = 0.25;
+                ctx.beginPath(); ctx.arc(300, 300, 180, 0, Math.PI*2); ctx.fill();
+
+                ctx.globalAlpha = 1.0;
+                ctx.fillStyle = '#fef08a';
+                ctx.font = 'bold 32px Amiri, serif';
+                ctx.textAlign = 'center';
+                ctx.fillText("إِذَا جَاءَ نَصْرُ اللَّهِ وَالْفَتْحُ", 300, 290);
+                ctx.fillStyle = '#34d399';
+                ctx.font = 'bold 20px Plus Jakarta Sans, sans-serif';
+                ctx.fillText("Kemenangan Fathu Makkah", 300, 335);
+            }
+
+            cachedFullLevelCanvas = canvas;
+            callback(canvas);
+        }
+
+        function drawMentorCharacter(ctx, charName, width, height) {
+            ctx.save();
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#090d16';
+            ctx.fillRect(0, 0, width, height);
+
+            const scale = width / 200;
+            ctx.scale(scale, scale);
+
+            if (charName.includes("Gojo")) {
+                ctx.fillStyle = '#f8fafc';
+                ctx.beginPath();
+                ctx.moveTo(40, 60); ctx.lineTo(60, 20); ctx.lineTo(80, 50);
+                ctx.lineTo(100, 10); ctx.lineTo(120, 50); ctx.lineTo(140, 20);
+                ctx.lineTo(160, 70); ctx.lineTo(100, 100); ctx.fill();
+                ctx.fillStyle = '#fed7aa'; ctx.fillRect(60, 60, 80, 70);
+                ctx.fillStyle = '#0f172a'; ctx.fillRect(50, 70, 100, 25);
+                ctx.fillStyle = '#1e1b4b'; ctx.fillRect(30, 130, 140, 70);
+
+            } else if (charName.includes("Yuji")) {
+                ctx.fillStyle = '#f43f5e';
+                ctx.beginPath();
+                ctx.moveTo(50, 60); ctx.lineTo(70, 25); ctx.lineTo(100, 20);
+                ctx.lineTo(130, 25); ctx.lineTo(150, 60); ctx.lineTo(100, 95); ctx.fill();
+                ctx.fillStyle = '#fed7aa'; ctx.fillRect(60, 60, 80, 70);
+                ctx.fillStyle = '#b91c1c'; ctx.fillRect(50, 120, 100, 30);
+                ctx.fillStyle = '#0f172a'; ctx.fillRect(30, 145, 140, 55);
+
+            } else if (charName.includes("Nobara")) {
+                ctx.fillStyle = '#0f172a';
+                ctx.beginPath(); ctx.arc(100, 80, 55, Math.PI, 0, false);
+                ctx.lineTo(160, 180); ctx.lineTo(40, 180); ctx.closePath(); ctx.fill();
+                ctx.fillStyle = '#fed7aa';
+                ctx.beginPath(); ctx.ellipse(100, 85, 25, 32, 0, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#1e293b'; ctx.fillRect(20, 150, 160, 50);
+
+            } else if (charName.includes("Megumi")) {
+                ctx.fillStyle = '#1e1b4b';
+                ctx.beginPath();
+                ctx.moveTo(30, 60); ctx.lineTo(60, 15); ctx.lineTo(100, 10);
+                ctx.lineTo(140, 15); ctx.lineTo(170, 60); ctx.lineTo(100, 95); ctx.fill();
+                ctx.fillStyle = '#fed7aa'; ctx.fillRect(60, 60, 80, 70);
+                ctx.fillStyle = '#0f172a'; ctx.fillRect(30, 130, 140, 70);
+
+            } else if (charName.includes("Nanami")) {
+                ctx.fillStyle = '#fef08a'; ctx.fillRect(50, 30, 100, 35);
+                ctx.fillStyle = '#fed7aa'; ctx.fillRect(60, 60, 80, 70);
+                ctx.fillStyle = '#ca8a04'; ctx.fillRect(65, 75, 30, 15); ctx.fillRect(105, 75, 30, 15);
+                ctx.fillStyle = '#334155'; ctx.fillRect(30, 130, 140, 70);
+
+            } else {
+                ctx.fillStyle = '#f43f5e'; ctx.fillRect(50, 30, 100, 35);
+                ctx.fillStyle = '#fed7aa'; ctx.fillRect(60, 60, 80, 70);
+                ctx.fillStyle = '#0f172a'; ctx.fillRect(70, 70, 60, 6);
+                ctx.fillStyle = '#f8fafc'; ctx.fillRect(30, 130, 140, 70);
+            }
+
+            ctx.restore();
+        }
+
+        function startLevel(levelIdx) {
+            currentLevelIndex = levelIdx;
+            const level = levelsData[levelIdx];
+
+            document.getElementById('levelBadge').innerText = `Level ${level.id} • ${level.type}`;
+            document.getElementById('levelTitle').innerText = level.title;
+            document.getElementById('levelArabicText').innerText = level.arabicHeader;
+            document.getElementById('levelSummary').innerText = level.summary;
+            document.getElementById('levelHistory').innerText = level.history;
+            document.getElementById('levelWisdom').innerText = `"${level.wisdom}"`;
+
+            const mentorCanvas = document.getElementById('mentorCanvasMini');
+            drawMentorCharacter(mentorCanvas.getContext('2d'), level.character, 56, 56);
+
+            moveCount = 0;
+            secondsElapsed = 0;
+            document.getElementById('moveCounter').innerText = '0';
+            document.getElementById('timerDisplay').innerText = '00:00';
+            clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+
+            document.getElementById('levelSelectSection').classList.add('hidden');
+            document.getElementById('gameplaySection').classList.remove('hidden');
+            document.getElementById('puzzleOverlay').classList.remove('hidden');
+
+            createIslamicArtCanvas(levelIdx, (sourceCanvas) => {
+                sliceCanvasToTiles(sourceCanvas);
+                document.getElementById('puzzleOverlay').classList.add('hidden');
+                drawPuzzleOnMainCanvas();
+            });
+        }
+
+        function sliceCanvasToTiles(sourceCanvas) {
+            tiles = [];
+            const tileSize = sourceCanvas.width / puzzleGridSize;
+
+            for (let row = 0; row < puzzleGridSize; row++) {
+                for (let col = 0; col < puzzleGridSize; col++) {
+                    const tileCanvas = document.createElement('canvas');
+                    tileCanvas.width = tileSize;
+                    tileCanvas.height = tileSize;
+                    const ctx = tileCanvas.getContext('2d');
+
+                    ctx.drawImage(
+                        sourceCanvas,
+                        col * tileSize, row * tileSize, tileSize, tileSize,
+                        0, 0, tileSize, tileSize
+                    );
+
+                    const correctIndex = row * puzzleGridSize + col;
+                    tiles.push({
+                        correctIndex: correctIndex,
+                        currentIndex: correctIndex,
+                        canvas: tileCanvas
+                    });
+                }
+            }
+            shuffleTiles();
+        }
+
+        function shuffleTiles() {
+            for (let i = tiles.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                const temp = tiles[i].currentIndex;
+                tiles[i].currentIndex = tiles[j].currentIndex;
+                tiles[j].currentIndex = temp;
+            }
+            selectedTileIndex = null;
+        }
+
+        function drawPuzzleOnMainCanvas() {
+            const mainCanvas = document.getElementById('puzzleCanvas');
+            const ctx = mainCanvas.getContext('2d');
+            const canvasSize = mainCanvas.width;
+            const tileSize = canvasSize / puzzleGridSize;
+
+            ctx.clearRect(0, 0, canvasSize, canvasSize);
+
+            const renderGrid = new Array(puzzleGridSize * puzzleGridSize);
+            tiles.forEach(tile => {
+                renderGrid[tile.currentIndex] = tile;
+            });
+
+            for (let i = 0; i < renderGrid.length; i++) {
+                const row = Math.floor(i / puzzleGridSize);
+                const col = i % puzzleGridSize;
+                const tile = renderGrid[i];
+
+                if (tile) {
+                    ctx.drawImage(tile.canvas, col * tileSize, row * tileSize, tileSize, tileSize);
+
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(col * tileSize, row * tileSize, tileSize, tileSize);
+
+                    if (selectedTileIndex === i) {
+                        ctx.strokeStyle = '#0ea5e9';
+                        ctx.lineWidth = 4;
+                        ctx.strokeRect(col * tileSize + 2, row * tileSize + 2, tileSize - 4, tileSize - 4);
+                    }
+                }
+            }
+        }
+
+        const mainCanvas = document.getElementById('puzzleCanvas');
+        mainCanvas.addEventListener('click', (e) => {
+            const rect = mainCanvas.getBoundingClientRect();
+            const scaleX = mainCanvas.width / rect.width;
+            const scaleY = mainCanvas.height / rect.height;
+
+            const clickX = (e.clientX - rect.left) * scaleX;
+            const clickY = (e.clientY - rect.top) * scaleY;
+
+            const col = Math.floor(clickX / (mainCanvas.width / puzzleGridSize));
+            const row = Math.floor(clickY / (mainCanvas.height / puzzleGridSize));
+            const clickedIndex = row * puzzleGridSize + col;
+
+            playSFX('click');
+
+            if (selectedTileIndex === null) {
+                selectedTileIndex = clickedIndex;
+            } else if (selectedTileIndex === clickedIndex) {
+                selectedTileIndex = null;
+            } else {
+                swapTiles(selectedTileIndex, clickedIndex);
+                selectedTileIndex = null;
+                moveCount++;
+                document.getElementById('moveCounter').innerText = moveCount;
+                playSFX('swap');
+
+                if (checkPuzzleSolved()) {
+                    setTimeout(handleVictory, 300);
+                }
+            }
+            drawPuzzleOnMainCanvas();
+        });
+
+        function swapTiles(gridIdxA, gridIdxB) {
+            const tileA = tiles.find(t => t.currentIndex === gridIdxA);
+            const tileB = tiles.find(t => t.currentIndex === gridIdxB);
+            if (tileA && tileB) {
+                const temp = tileA.currentIndex;
+                tileA.currentIndex = tileB.currentIndex;
+                tileB.currentIndex = temp;
+            }
+        }
+
+        function checkPuzzleSolved() {
+            return tiles.every(tile => tile.correctIndex === tile.currentIndex);
+        }
+
+        function updateTimer() {
+            secondsElapsed++;
+            const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+            const secs = (secondsElapsed % 60).toString().padStart(2, '0');
+            document.getElementById('timerDisplay').innerText = `${mins}:${secs}`;
+        }
+
+        function openImagePreviewModal() {
+            if (!cachedFullLevelCanvas) return;
+            const targetCanvas = document.getElementById('targetPreviewCanvas');
+            const ctx = targetCanvas.getContext('2d');
+            ctx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
+            ctx.drawImage(cachedFullLevelCanvas, 0, 0, targetCanvas.width, targetCanvas.height);
+            document.getElementById('imagePreviewModal').classList.remove('hidden');
+        }
+
+        function closeImagePreviewModal() {
+            document.getElementById('imagePreviewModal').classList.add('hidden');
+        }
+
+        function handleVictory() {
+            clearInterval(timerInterval);
+            playSFX('victory');
+
+            const level = levelsData[currentLevelIndex];
+            let stars = 3;
+            if (moveCount > 25) stars = 1;
+            else if (moveCount > 15) stars = 2;
+
+            const progress = JSON.parse(localStorage.getItem('jjk_islamic_progress') || '{}');
+            progress[currentLevelIndex] = {
+                completed: true,
+                stars: Math.max(stars, progress[currentLevelIndex]?.stars || 0),
+                time: secondsElapsed,
+                moves: moveCount
+            };
+            localStorage.setItem('jjk_islamic_progress', JSON.stringify(progress));
+
+            saveLeaderboardEntry(currentUser.name, currentLevelIndex + 1, secondsElapsed, stars);
+
+            document.getElementById('mentorTitle').innerText = `${level.character} • Mentor Intelektual`;
+            document.getElementById('mentorPraiseText').innerText = `"${level.mentorPraise(currentUser.name)}"`;
+            document.getElementById('modalTime').innerText = document.getElementById('timerDisplay').innerText;
+            document.getElementById('modalMoves').innerText = moveCount;
+            document.getElementById('modalStars').innerHTML = Array(3).fill(0).map((_, i) => `<i class="${i < stars ? 'fas' : 'far'} fa-star"></i>`).join('');
+
+            const mentorCanvasModal = document.getElementById('mentorCanvasModal');
+            drawMentorCharacter(mentorCanvasModal.getContext('2d'), level.character, 96, 96);
+
+            const nextBtn = document.getElementById('nextLevelBtn');
+            if (currentLevelIndex < levelsData.length - 1) {
+                nextBtn.classList.remove('hidden');
+            } else {
+                nextBtn.classList.add('hidden');
+                setTimeout(showLeaderboard, 1200); // Trigger leaderboard automatically on finishing final level
+            }
+
+            document.getElementById('victoryModal').classList.remove('hidden');
+        }
+
+        function closeVictoryModal() {
+            document.getElementById('victoryModal').classList.add('hidden');
+        }
+
+        function startNextLevel() {
+            if (currentLevelIndex < levelsData.length - 1) {
+                startLevel(currentLevelIndex + 1);
+            }
+        }
+
+        function resetCurrentPuzzle() {
+            startLevel(currentLevelIndex);
+        }
+
+        function backToLevelSelect() {
+            clearInterval(timerInterval);
+            document.getElementById('gameplaySection').classList.add('hidden');
+            document.getElementById('levelSelectSection').classList.remove('hidden');
+            renderLevelGrid();
+        }
+
+        function initAudioEngine() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            startBGM();
+        }
+
+        function startBGM() {
+            if (isAudioPlaying) return;
+            isAudioPlaying = true;
+
+            const chords = [
+                [261.63, 329.63, 392.00],
+                [246.94, 293.66, 392.00],
+                [220.00, 261.63, 329.63],
+                [164.81, 246.94, 293.66],
+                [174.61, 220.00, 261.63]
+            ];
+
+            let step = 0;
+            function playStep() {
+                if (!isAudioPlaying) return;
+
+                const chord = chords[step % chords.length];
+                chord.forEach(freq => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                    const vol = bgmVolume * 0.08;
+                    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.2);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 2.3);
+                });
+
+                step++;
+                setTimeout(playStep, 2400);
+            }
+            playStep();
+        }
+
+        function playSFX(type) {
+            if (!audioCtx || sfxVolume === 0) return;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'click') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                gain.gain.setValueAtTime(sfxVolume * 0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'swap') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
+                gain.gain.setValueAtTime(sfxVolume * 0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+            } else if (type === 'victory') {
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((f, i) => {
+                    const vOsc = audioCtx.createOscillator();
+                    const vGain = audioCtx.createGain();
+                    vOsc.connect(vGain);
+                    vGain.connect(audioCtx.destination);
+                    vOsc.frequency.setValueAtTime(f, audioCtx.currentTime + i * 0.12);
+                    vGain.gain.setValueAtTime(sfxVolume * 0.2, audioCtx.currentTime + i * 0.12);
+                    vGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + i * 0.12 + 0.4);
+                    vOsc.start(audioCtx.currentTime + i * 0.12);
+                    vOsc.stop(audioCtx.currentTime + i * 0.12 + 0.4);
+                });
+            }
+        }
+
+        function toggleSettingsModal() {
+            document.getElementById('settingsModal').classList.toggle('hidden');
+        }
+
+        function updateAudioSettings() {
+            bgmVolume = parseInt(document.getElementById('bgmSlider').value) / 100;
+            sfxVolume = parseInt(document.getElementById('sfxSlider').value) / 100;
+
+            document.getElementById('bgmVolumeLabel').innerText = `${Math.round(bgmVolume * 100)}%`;
+            document.getElementById('sfxVolumeLabel').innerText = `${Math.round(sfxVolume * 100)}%`;
+        }
+
+        function toggleParticlesSetting() {
+            particlesEnabled = document.getElementById('particleToggle').checked;
+        }
+
+        function saveLeaderboardEntry(name, levelNum, timeSec, stars) {
+            const list = JSON.parse(localStorage.getItem('jjk_islamic_leaderboard') || '[]');
+            list.push({
+                name: name,
+                level: levelNum,
+                time: timeSec,
+                stars: stars,
+                date: new Date().toLocaleDateString()
+            });
+            list.sort((a, b) => b.stars - a.stars || a.time - b.time);
+            localStorage.setItem('jjk_islamic_leaderboard', JSON.stringify(list.slice(0, 20)));
+        }
+
+        function showLeaderboard() {
+            const list = JSON.parse(localStorage.getItem('jjk_islamic_leaderboard') || '[]');
+            const container = document.getElementById('leaderboardList');
+            container.innerHTML = '';
+
+            if (list.length === 0) {
+                container.innerHTML = '<p class="text-xs text-gray-500 py-6">Belum ada rekor domain tersimpan.</p>';
+            } else {
+                list.forEach((item, idx) => {
+                    const row = document.createElement('div');
+                    row.className = 'flex items-center justify-between p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-xs';
+                    row.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <span class="w-6 font-bold font-mono text-cyan-400">#${idx + 1}</span>
+                            <div class="text-left">
+                                <span class="font-bold text-gray-200 block">${item.name}</span>
+                                <span class="text-[10px] text-gray-400">Level ${item.level} • ${item.date}</span>
+                            </div>
+                        </div>
+                        <div class="text-right font-mono">
+                            <span class="text-amber-400 block">${item.stars} ★</span>
+                            <span class="text-gray-400 text-[10px]">${item.time}s</span>
+                        </div>
+                    `;
+                    container.appendChild(row);
+                });
+            }
+            document.getElementById('leaderboardModal').classList.remove('hidden');
+        }
+
+        function closeLeaderboard() {
+            document.getElementById('leaderboardModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
